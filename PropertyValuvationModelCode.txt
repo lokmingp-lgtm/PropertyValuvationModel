@@ -1,0 +1,151 @@
+<div class="w-full max-w-6xl bg-[#0d0d0d] rounded-[2.5rem] border border-white/5 shadow-2xl overflow-hidden text-gray-300 font-sans mx-auto my-10">
+    
+    <div class="bg-white/[0.02] px-8 py-3 border-b border-white/5 flex justify-between items-center">
+        <div class="flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-[#10b981]"></span>
+            <span class="text-[10px] font-bold uppercase tracking-widest text-gray-500">Real-Time Data Engine</span>
+        </div>
+        <div id="deal-badge" class="px-3 py-1 rounded-md bg-white/5 text-[10px] font-bold uppercase text-gray-400">Waiting for Data</div>
+    </div>
+
+    <div class="p-8 md:p-12 grid grid-cols-1 lg:grid-cols-12 gap-12">
+        
+        <div class="lg:col-span-5 space-y-8">
+            <div>
+                <h1 class="text-3xl font-black text-white tracking-tight">Deal<span class="text-[#10b981]">Analyzer</span></h1>
+                <p class="text-gray-500 text-sm mt-1">Institutional property valuation model.</p>
+            </div>
+
+            <div class="space-y-4">
+                <div class="space-y-1">
+                    <label class="text-[10px] font-bold uppercase text-gray-500 ml-1">Property Price ($)</label>
+                    <input id="price" type="number" placeholder="500000" class="w-full bg-black border border-white/10 rounded-xl p-4 focus:outline-none focus:border-[#10b981] text-white transition-all" />
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-bold uppercase text-gray-500 ml-1">Down Payment ($)</label>
+                        <input id="down" type="number" placeholder="100000" class="w-full bg-black border border-white/10 rounded-xl p-4 focus:outline-none focus:border-[#10b981] text-white transition-all" />
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-bold uppercase text-gray-500 ml-1">Interest Rate (%)</label>
+                        <input id="rate" type="number" step="0.1" placeholder="6.5" class="w-full bg-black border border-white/10 rounded-xl p-4 focus:outline-none focus:border-[#10b981] text-white transition-all" />
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-bold uppercase text-gray-500 ml-1">Monthly Rent ($)</label>
+                        <input id="rent" type="number" placeholder="4000" class="w-full bg-black border border-white/10 rounded-xl p-4 focus:outline-none focus:border-[#10b981] text-white transition-all" />
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-bold uppercase text-gray-500 ml-1">Expenses/Mo ($)</label>
+                        <input id="exp" type="number" placeholder="600" class="w-full bg-black border border-white/10 rounded-xl p-4 focus:outline-none focus:border-[#10b981] text-white transition-all" />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="lg:col-span-7 space-y-6 flex flex-col justify-center">
+            
+            <div class="bg-white/[0.02] rounded-[2rem] p-10 border border-white/5 relative overflow-hidden">
+                <p class="text-[10px] font-bold uppercase text-gray-500 tracking-[0.2em] mb-2">Net Monthly Cash Flow</p>
+                <p id="res-cashflow" class="text-7xl font-black text-white tracking-tighter transition-all">$0</p>
+                <p id="res-status" class="text-xs font-medium mt-4 text-gray-500">Enter details to see profitability.</p>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <div class="bg-white/[0.02] rounded-3xl p-6 border border-white/5">
+                    <p class="text-[10px] font-bold uppercase text-gray-500 mb-1">Mortgage (P&I)</p>
+                    <p id="res-mortgage" class="text-2xl font-bold text-white tracking-tight">$0</p>
+                </div>
+                <div class="bg-white/[0.02] rounded-3xl p-6 border border-white/5">
+                    <p class="text-[10px] font-bold uppercase text-gray-500 mb-1">Annual Cap Rate</p>
+                    <p id="res-cap" class="text-2xl font-bold text-white tracking-tight">0.00%</p>
+                </div>
+                <div class="bg-white/[0.02] rounded-3xl p-6 border border-white/5">
+                    <p class="text-[10px] font-bold uppercase text-gray-500 mb-1">Total Loan Amount</p>
+                    <p id="res-loan" class="text-2xl font-bold text-white tracking-tight">$0</p>
+                </div>
+                <div class="bg-white/[0.02] rounded-3xl p-6 border border-white/5">
+                    <p class="text-[10px] font-bold uppercase text-gray-500 mb-1">Break Even (Rent)</p>
+                    <p id="res-breakeven" class="text-2xl font-bold text-white tracking-tight">$0</p>
+                </div>
+            </div>
+
+            <div class="bg-[#10b981]/5 border border-[#10b981]/10 rounded-2xl p-4 flex justify-between items-center">
+                <span class="text-[10px] font-bold text-[#10b981] uppercase tracking-widest">Est. 5-Year Equity Growth</span>
+                <span id="res-equity" class="text-lg font-bold text-white">$0</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<script>
+    // Calculation Logic
+    const ids = ["price", "down", "rate", "rent", "exp"];
+    
+    // Wait for DOM to load
+    setTimeout(() => {
+        ids.forEach(id => {
+            const el = document.getElementById(id);
+            if(el) el.addEventListener('input', calculate);
+        });
+        if(window.lucide) lucide.createIcons();
+    }, 500);
+
+    function calculate() {
+        const price = parseFloat(document.getElementById('price').value) || 0;
+        const down = parseFloat(document.getElementById('down').value) || 0;
+        const rate = parseFloat(document.getElementById('rate').value) || 0;
+        const rent = parseFloat(document.getElementById('rent').value) || 0;
+        const exp = parseFloat(document.getElementById('exp').value) || 0;
+
+        const loan = price - down;
+        const monthlyRate = (rate / 100) / 12;
+        const months = 360;
+
+        let mortgage = 0;
+        if (monthlyRate > 0) {
+            mortgage = loan * (monthlyRate * Math.pow(1 + monthlyRate, months)) / (Math.pow(1 + monthlyRate, months) - 1);
+        } else if (loan > 0) {
+            mortgage = loan / months;
+        }
+
+        const cashFlow = rent - mortgage - exp;
+        const annualNet = cashFlow * 12;
+        const capRate = price > 0 ? (annualNet / price) * 100 : 0;
+        const breakEven = mortgage + exp;
+        const equityGrowth = price * 0.15;
+
+        document.getElementById('res-mortgage').textContent = `$${Math.round(mortgage).toLocaleString()}`;
+        document.getElementById('res-cashflow').textContent = `$${Math.round(cashFlow).toLocaleString()}`;
+        document.getElementById('res-cap').textContent = `${capRate.toFixed(2)}%`;
+        document.getElementById('res-loan').textContent = `$${Math.round(loan).toLocaleString()}`;
+        document.getElementById('res-breakeven').textContent = `$${Math.round(breakEven).toLocaleString()}`;
+        document.getElementById('res-equity').textContent = `+$${Math.round(equityGrowth).toLocaleString()}`;
+
+        const cfDisplay = document.getElementById('res-cashflow');
+        const badge = document.getElementById('deal-badge');
+        const statusText = document.getElementById('res-status');
+
+        if (price === 0) {
+            cfDisplay.style.color = "white";
+            badge.textContent = "Waiting for Data";
+        } else if (cashFlow > 200) {
+            cfDisplay.style.color = "#10b981";
+            badge.textContent = "Strong Deal";
+            statusText.textContent = "This property generates healthy monthly passive income.";
+        } else if (cashFlow > 0) {
+            cfDisplay.style.color = "#f59e0b";
+            badge.textContent = "Thin Margins";
+            statusText.textContent = "Positive cash flow, but watch for maintenance spikes.";
+        } else {
+            cfDisplay.style.color = "#f43f5e";
+            badge.textContent = "High Risk";
+            statusText.textContent = "Negative cash flow. Consider higher down payment or rent.";
+        }
+    }
+</script>
